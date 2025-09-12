@@ -37,7 +37,7 @@ def generate_children(node):
     possible_moves = get_possible_moves(node)
 
     for move in possible_moves:
-        print("Generating child for move:", move)
+        # print("Generating child for move:", move)
         type, position = move
         new_board_status = np.copy(node.board_status)
         new_row_status = np.copy(node.row_status)
@@ -87,7 +87,6 @@ def evaluate(node):
     return value
 
 def minmax(node, depth, is_maximizing):
-    print(f"{node}with depth {depth} and is_maximizing {is_maximizing}")
     if depth == 0 or is_terminal(node):
         return evaluate(node), None
 
@@ -155,13 +154,13 @@ if __name__ == "__main__":
     # testing_col_status = [[1, 1, 1], 
     #                       [1, 1, 0]]
 
-    testing_board = [[4, 4],
-                     [3, 2]]
+    testing_board = [[3, 3],
+                     [0, 0]]
     testing_row_status = [[1, 1],
-                          [1, 1],
+                          [0, 0],
                           [0, 0]]
     testing_col_status = [[1, 1, 1], 
-                          [1, 1, 0]]
+                          [0, 0, 0]]
 
     root = Node(testing_board, testing_row_status, testing_col_status, 2)
     print("=== EJECUTANDO MINIMAX ===")
@@ -170,4 +169,3 @@ if __name__ == "__main__":
     print("\n=== RESULTADOS ===")
     print(f"Valor MinMax: {minmax_value}")
     print_best_move(best_move)
-    

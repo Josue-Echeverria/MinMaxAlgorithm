@@ -607,15 +607,12 @@ def main():
         setup_result = show_game_setup()
         
         if setup_result and setup_result['start']:
-            print(f"Iniciando juego con tablero de {setup_result['dots']} puntos")
             game_instance = Dots_and_Boxes(setup_result['dots'])
             game_instance.mainloop()
-        else:
-            print("Juego cancelado por el usuario")
+    
     except Exception as e:
         print(f"Error al iniciar el juego: {e}")
         # En caso de error, iniciar con valores por defecto
-        print("Iniciando con configuración por defecto (3x3)")
         game_instance = Dots_and_Boxes(3)
         game_instance.mainloop()
 

@@ -122,12 +122,14 @@ def evaluate(node):
     """
     return node.score_player_1 - node.score_player_2
 
-def minmax(node, depth, is_maximizing):
+def minmax(node, depth, is_maximizing, alpha=-math.inf, beta=math.inf):
     """
-    Algoritmo MinMax con poda por profundidad.
+    Algoritmo MinMax con poda alpha-beta.
     - node: nodo actual del juego
     - depth: profundidad máxima a explorar
     - is_maximizing: True si es turno del jugador maximizador (jugador 1)
+    - alpha: mejor valor para el jugador maximizador
+    - beta: mejor valor para el jugador minimizador
     """
     if depth == 0 or is_terminal(node):
         return evaluate(node), None
@@ -138,10 +140,13 @@ def minmax(node, depth, is_maximizing):
         children, possible_moves = generate_children(node)
         
         for i, child in enumerate(children):
-            eval_value, _ = minmax(child, depth - 1, False)
+            eval_value, _ = minmax(child, depth - 1, False, alpha, beta)
             if eval_value > max_eval:
                 max_eval = eval_value
                 best_move = possible_moves[i]
+            alpha = max(alpha, eval_value)
+            if beta <= alpha:
+                break
         return max_eval, best_move
     else:
         min_eval = +math.inf
@@ -149,10 +154,13 @@ def minmax(node, depth, is_maximizing):
         children, possible_moves = generate_children(node)
         
         for i, child in enumerate(children):
-            eval_value, _ = minmax(child, depth - 1, True)
+            eval_value, _ = minmax(child, depth - 1, True, alpha, beta)
             if eval_value < min_eval:
                 min_eval = eval_value
                 best_move = possible_moves[i]
+            beta = min(beta, eval_value)
+            if beta <= alpha:
+                break
         return min_eval, best_move
 
 def print_best_move(best_move):

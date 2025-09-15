@@ -5,12 +5,15 @@ import numpy as np
 NUMBER_OF_DOTS = 3
 
 class Node:
-    def __init__(self, board_status, row_status, col_status, player):
+    def __init__(self, board_status, row_status, col_status, player, boxes_completed, score_player_1, score_player_2):
         self.children = []
         self.row_status = row_status
         self.col_status = col_status
         self.player = player
         self.board_status = board_status
+        self.score_player_1 = score_player_1
+        self.score_player_2 = score_player_2
+        self.boxes_completed = boxes_completed
     def __str__(self):
         return f"row: \n{self.row_status}, \ncol: \n{self.col_status}, \nboard: \n{self.board_status}\n"
 
@@ -45,9 +48,10 @@ def generate_children(node):
         create_next_state(new_board_status, new_row_status, new_col_status, type, position)
         if np.all(new_board_status == 5):
             continue
-        child = Node(new_board_status, new_row_status, new_col_status, 2 if node.player == 1 else 1)
+        child = Node(new_board_status, new_row_status, new_col_status, 2 if node.player == 1 else 1, node.boxes_completed, node.score_player_1, node.score_player_2)
+        update_scores(child)
         children.append(child)
-    return children
+    return children, possible_moves
 
 def get_possible_moves(node):
     """Retorna una lista de movimientos posibles para el nodo actual"""
@@ -63,10 +67,18 @@ def get_possible_moves(node):
 def is_terminal(node):
     return np.all(node.board_status == 4)
 
-def get_score(board_status, player):
+def update_scores(node):
+    print(f"Boxes completed: {node.boxes_completed}, Scores: P1={node.score_player_1}, P2={node.score_player_2}")
+    if node.boxes_completed > node.score_player_1 + node.score_player_2:
+        if node.player == 1:
+            node.score_player_1 += 1
+        else:
+            node.score_player_2 += 1
+
+def get_score(board_status, node):
     score = 0
     base = 10
-    if player == 2:
+    if node.player == 2:
         base = -10
     match board_status:
         case 4:
@@ -83,10 +95,11 @@ def evaluate(node):
     value = 0
     for i in range(NUMBER_OF_DOTS - 1):
         for j in range(NUMBER_OF_DOTS - 1):
-            value += get_score(node.board_status[i][j], node.player)
+            value += get_score(node.board_status[i][j], node)
     return value
 
 def minmax(node, depth, is_maximizing):
+    # print(f"{node}with depth {depth} and is_maximizing {is_maximizing}")
     if depth == 0 or is_terminal(node):
         return evaluate(node), None
 
@@ -94,8 +107,7 @@ def minmax(node, depth, is_maximizing):
         # -Infinito
         max_eval = -math.inf
         best_move = None
-        children = generate_children(node)
-        possible_moves = get_possible_moves(node)
+        children, possible_moves = generate_children(node)
         
         for i, child in enumerate(children):
             eval_value, _ = minmax(child, depth - 1, False)
@@ -107,7 +119,7 @@ def minmax(node, depth, is_maximizing):
         # Infinito
         min_eval = +math.inf
         best_move = None
-        children = generate_children(node)
+        children, possible_moves = generate_children(node)
         possible_moves = get_possible_moves(node)
         
         for i, child in enumerate(children):

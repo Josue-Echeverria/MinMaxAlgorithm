@@ -482,7 +482,10 @@ class Dots_and_Boxes():
             np.copy(self.board_status),
             np.copy(self.row_status), 
             np.copy(self.col_status),
-            1 if self.player1_turn else 2
+            1 if self.player1_turn else 2,
+            len(self.already_marked_boxes),
+            self.player1_score,
+            self.player2_score
         )
         print(f"Current Node:\n{current_node}")
         

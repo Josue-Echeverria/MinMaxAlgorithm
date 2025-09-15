@@ -115,14 +115,26 @@ def update_scores(node):
             return 2
     return 0
 
-def evaluate(node):
+def evaluate(node, randomize):
     """
     Función de evaluación basada en los puntajes reales de los jugadores.
     Retorna la diferencia de puntajes: score_player_1 - score_player_2
     """
-    return node.score_player_1 - node.score_player_2
+    sum = 0
+    if randomize:
+        """
+        Cuando hay aleatorizar la respuesta
+        Hay 1 en 3 posibilidades que se le sume o reste 2 al valor real
+        """
+        rand = np.random.randint(0, 3)  # 0 a 2
+        if (rand == 1):
+            sum = -10
+        if (rand == 2):
+            sum = 10
+        
+    return node.score_player_1 - node.score_player_2 + sum
 
-def minmax(node, depth, is_maximizing, alpha=-math.inf, beta=math.inf):
+def minmax(node, depth, is_maximizing, alpha=-math.inf, beta=math.inf, randomize=False):
     """
     Algoritmo MinMax con poda alpha-beta.
     - node: nodo actual del juego
@@ -132,15 +144,14 @@ def minmax(node, depth, is_maximizing, alpha=-math.inf, beta=math.inf):
     - beta: mejor valor para el jugador minimizador
     """
     if depth == 0 or is_terminal(node):
-        return evaluate(node), None
+        return evaluate(node, randomize), None
 
+    best_move = None
+    children, possible_moves = generate_children(node)
     if is_maximizing:
         max_eval = -math.inf
-        best_move = None
-        children, possible_moves = generate_children(node)
-        
         for i, child in enumerate(children):
-            eval_value, _ = minmax(child, depth - 1, False, alpha, beta)
+            eval_value, _ = minmax(child, depth - 1, False, alpha, beta, randomize)
             if eval_value > max_eval:
                 max_eval = eval_value
                 best_move = possible_moves[i]
@@ -150,11 +161,8 @@ def minmax(node, depth, is_maximizing, alpha=-math.inf, beta=math.inf):
         return max_eval, best_move
     else:
         min_eval = +math.inf
-        best_move = None
-        children, possible_moves = generate_children(node)
-        
         for i, child in enumerate(children):
-            eval_value, _ = minmax(child, depth - 1, True, alpha, beta)
+            eval_value, _ = minmax(child, depth - 1, True, alpha, beta, randomize)
             if eval_value < min_eval:
                 min_eval = eval_value
                 best_move = possible_moves[i]

@@ -6,7 +6,7 @@ from tkinter import *
 from tkinter import ttk, messagebox, simpledialog
 import numpy as np
 import minmax
-from minmax import Node, minmax as minimax_algorithm, get_possible_moves
+from minmax import Node, minmax as minimax_algorithm
 
 size_of_board = 600
 NUMBER_OF_DOTS = 3  # Se actualizará con la selección del usuario
@@ -233,10 +233,19 @@ class Dots_and_Boxes():
                                    bg="#27AE60",
                                    fg="white",
                                    font="Arial 10 bold")
-        self.canvas.create_window(controls_x + 100, 130, window=self.minimax_button)
         
+        self.vs_random_button = Button(self.window, 
+                                   text="vs MinMax + Aleatorio", 
+                                   bg="#AE277F",
+                                   command=self.execute_minimax_random_and_move,
+                                   fg="white",
+                                   font="Arial 10 bold")
+        
+        self.canvas.create_window(controls_x + 100, 130, window=self.minimax_button)
+        self.canvas.create_window(controls_x + 100, 190, window=self.vs_random_button)
+
         # Área para mostrar información del movimiento ejecutado
-        self.best_move_text = self.canvas.create_text(controls_x + 100, 200,
+        self.best_move_text = self.canvas.create_text(controls_x + 100, 250,
                                                      text="Presiona 'Ejecutar MinMax'\npara calcular y ejecutar\nel mejor movimiento",
                                                      font="Arial 11",
                                                      fill="#E74C3C",
@@ -444,11 +453,12 @@ class Dots_and_Boxes():
         self.canvas.delete(self.score_text_handle)
         
         # Display scores on the right side of the board
-        self.score_text_handle = self.canvas.create_text(size_of_board + 100, 
+        self.score_text_handle = self.canvas.create_text(size_of_board + 75, 
                                                         size_of_board // 2 + 100,
                                                         font="cmr 16 bold", 
                                                         text=score_text, 
                                                         fill=Green_color,
+                                                        justify='center',
                                                         anchor='w')
 
     def shade_box(self, box, color):
@@ -462,7 +472,7 @@ class Dots_and_Boxes():
         # Game is over when all possible boxes are completed
         return (self.player1_score + self.player2_score) == (NUMBER_OF_DOTS - 1) ** 2
 
-    def execute_minimax_and_move(self):
+    def execute_minimax_and_move(self, randomize=False):
         """Ejecuta el algoritmo minimax, encuentra el mejor movimiento y lo ejecuta automáticamente"""
         try:
             depth = int(self.depth_var.get())
@@ -494,7 +504,7 @@ class Dots_and_Boxes():
         self.window.update()  # Actualizar la interfaz inmediatamente
         
         # Ejecutar minimax
-        self.minimax_value, self.current_best_move = minimax_algorithm(current_node, depth, self.player1_turn)
+        self.minimax_value, self.current_best_move = minimax_algorithm(current_node, depth, self.player1_turn, randomize=randomize)
         
         # Verificar si hay movimiento disponible
         if self.current_best_move and not self.reset_board:
@@ -547,6 +557,11 @@ class Dots_and_Boxes():
         """Función legacy - redirige a la nueva función combinada"""
         self.execute_minimax_and_move()
     
+    def execute_minimax_random_and_move(self):
+        """Ejecuta minimax y luego un movimiento aleatorio"""
+        self.execute_minimax_and_move(randomize=True)
+
+
     def execute_best_move(self):
         """Función legacy - ya no se usa pero se mantiene para compatibilidad"""
         pass
